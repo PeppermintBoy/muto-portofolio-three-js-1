@@ -2,19 +2,88 @@ import * as THREE from 'three';
 import './style.css';
 import gsap from 'gsap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 
 // Scene
 const scene = new THREE.Scene();
 
 // Create our sphere
-const geometry = new THREE.SphereGeometry(3, 64, 64);
-const material = new THREE.MeshStandardMaterial({
-	color: 'grey',
-	// more shinier
-	roughness: 0.2,
+// const geometry = new THREE.SphereGeometry(3, 64, 64);
+// const material = new THREE.MeshStandardMaterial({
+// 	color: 'grey',
+// 	// more shinier
+// 	roughness: 0.2,
+// });
+// const mesh = new THREE.Mesh(geometry, material);
+// scene.add(mesh);
+
+// Font Loader
+const fontLoader = new FontLoader();
+fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
+	// Create a text geometry for the words
+	const textGeometry = new TextGeometry('Nathan Muto', {
+		font: font, // Specify the font for the text
+		size: 2, // Adjust the size of the text
+		height: 0.1, // Adjust the thickness of the text
+	});
+
+	// Create a material for the text
+	const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+	// Create a mesh using the geometry and material
+	const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+	// Position the text on the floor
+	textMesh.position.set(0, 0, 0); // Adjust the position as needed
+	// Add the text mesh to the scene
+	scene.add(textMesh);
 });
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+
+// Create a reflective floor
+const geometry = new THREE.CircleGeometry(40, 64);
+const groundMirror = new Reflector(geometry, {
+	clipBias: 0.003,
+	textureWidth: window.innerWidth * window.devicePixelRatio,
+	textureHeight: window.innerHeight * window.devicePixelRatio,
+	color: 0xb5b5b5,
+});
+groundMirror.position.y = 0.5;
+groundMirror.rotateX(-Math.PI / 2);
+groundMirror.material.envMapIntensity = 1;
+scene.add(groundMirror);
+
+// Add 3D Model
+const modelLoader = new GLTFLoader();
+// load aircraft
+modelLoader.load(
+	'../models/vintage_toy_airplane_2/scene.gltf',
+	gltf => {
+		gltf.scene.position.set(0, 0, 0);
+		gltf.scene.scale.set(0.02, 0.02, 0.02);
+		gltf.scene.visible = true; // Set visibility to true
+		scene.add(gltf.scene);
+	},
+	undefined,
+	function (error) {
+		console.error('Error loading GLTF file', error);
+	}
+);
+
+// load robot
+modelLoader.load(
+	'../models/baby_robot__3dcoat/scene.gltf',
+	gltf => {
+		gltf.scene.position.set(-5, 0, 10);
+		gltf.scene.scale.set(0.05, 0.05, 0.05);
+		gltf.scene.visible = true; // Set visibility to true
+		scene.add(gltf.scene);
+	},
+	undefined,
+	function (error) {
+		console.error('Error loading GLTF file', error);
+	}
+);
 
 // Size
 const sizes = {
@@ -22,20 +91,31 @@ const sizes = {
 	height: window.innerHeight,
 };
 
-// Light
+// PointLight
 const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(30, 30, 20);
+light.position.set(10, 10, 10);
 light.intensity = 5;
 scene.add(light);
+
+// Add a global ambient light to brighten the entire scene
+// const ambientLight = new THREE.AmbientLight(0xffffff, 1); // White light with full intensity
+// scene.add(ambientLight);
+
+// DirectionalLight
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light with full intensity
+directionalLight.position.set(1, 1, 1); // Adjust the position as needed
+scene.add(directionalLight);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
 	45,
 	sizes.width / sizes.height,
 	0.1,
-	100
+	500
 );
-camera.position.z = 20;
+camera.position.x = 10;
+camera.position.y = 20;
+camera.position.z = 30;
 scene.add(camera);
 
 //  Renderer (most important part. This is where all the magics come alive)
@@ -48,11 +128,15 @@ renderer.render(scene, camera);
 
 // Controls
 const controls = new OrbitControls(camera, canvas);
+// dont go below the ground
+controls.maxPolarAngle = Math.PI / 2.5;
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.enableZoom = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 5;
+controls.enableZoom = true;
+controls.minDistance = 10;
+controls.maxDistance = 100;
+// controls.autoRotate = true;
+// controls.autoRotateSpeed = 5;
 
 // Resize
 window.addEventListener('resize', () => {
@@ -75,30 +159,30 @@ loop();
 
 // Timeline magic
 const tl = gsap.timeline({ defaults: { duration: 1 } });
-tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 2, x: 2, y: 2 });
+// tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 2, x: 2, y: 2 });
 tl.fromTo('nav', { y: '-100%' }, { y: '0%' });
 tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
 
 // Mouse animation Color
-let mouseDown = false;
-let rgb = [];
-window.addEventListener('mousedown', () => (mouseDown = true));
-window.addEventListener('mouseup', () => (mouseDown = false));
+// let mouseDown = false;
+// let rgb = [];
+// window.addEventListener('mousedown', () => (mouseDown = true));
+// window.addEventListener('mouseup', () => (mouseDown = false));
 
-window.addEventListener('mousemove', e => {
-	if (mouseDown) {
-		rgb = [
-			Math.round((e.pageX / sizes.width) * 255),
-			Math.round((e.pageY / sizes.height) * 255),
-			150,
-		];
-		// Lets animate
-		// Needs to call Three.color in order to change THREE object color.
-		let newColor = new THREE.Color(`rgb(${rgb.join(',')})`);
-		gsap.to(mesh.material.color, {
-			r: newColor.r,
-			g: newColor.g,
-			b: newColor.b,
-		});
-	}
-});
+// window.addEventListener('mousemove', e => {
+// 	if (mouseDown) {
+// 		rgb = [
+// 			Math.round((e.pageX / sizes.width) * 255),
+// 			Math.round((e.pageY / sizes.height) * 255),
+// 			150,
+// 		];
+// 		// Lets animate
+// 		// Needs to call Three.color in order to change THREE object color.
+// 		let newColor = new THREE.Color(`rgb(${rgb.join(',')})`);
+// 		gsap.to(mesh.material.color, {
+// 			r: newColor.r,
+// 			g: newColor.g,
+// 			b: newColor.b,
+// 		});
+// 	}
+// });

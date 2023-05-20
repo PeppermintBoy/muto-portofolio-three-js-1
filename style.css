@@ -7,9 +7,8 @@
 body,
 html {
 	overflow-x: hidden;
-	font-family: 'Poppins', sans-serif;
+	font-family: 'Oswald', sans-serif;
 }
-
 .webgl {
 	position: absolute;
 	top: 0;
@@ -43,6 +42,6 @@ nav ul {
 	position: absolute;
 	font-size: 3rem;
 	left: 50%;
-	top: 75%;
+	top: 85%;
 	transform: translate(-50%, -75%);
 }
