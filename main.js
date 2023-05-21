@@ -129,7 +129,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.x = 10;
 camera.position.y = 20;
-camera.position.z = 30;
+camera.position.z = 70;
 scene.add(camera);
 
 //  Renderer (most important part. This is where all the magics come alive)
