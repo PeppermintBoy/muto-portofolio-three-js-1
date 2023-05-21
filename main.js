@@ -20,38 +20,14 @@ const scene = new THREE.Scene();
 // const mesh = new THREE.Mesh(geometry, material);
 // scene.add(mesh);
 
-// Font Loader
-const fontLoader = new FontLoader();
-fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
-	// Create a text geometry for the words
-	const textGeometry = new TextGeometry('Nathan Muto', {
-		font: font, // Specify the font for the text
-		size: 2, // Adjust the size of the text
-		height: 0.1, // Adjust the thickness of the text
-	});
+// Loading page
+// const loadingManager = new THREE.LoadingManager(() => {
+// 	const loadingScreen = document.getElementById('loading-screen');
+// 	loadingScreen.classList.add('fade-out');
 
-	// Create a material for the text
-	const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-	// Create a mesh using the geometry and material
-	const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-	// Position the text on the floor
-	textMesh.position.set(0, 0, 0); // Adjust the position as needed
-	// Add the text mesh to the scene
-	scene.add(textMesh);
-});
-
-// Create a reflective floor
-const geometry = new THREE.CircleGeometry(40, 64);
-const groundMirror = new Reflector(geometry, {
-	clipBias: 0.003,
-	textureWidth: window.innerWidth * window.devicePixelRatio,
-	textureHeight: window.innerHeight * window.devicePixelRatio,
-	color: 0xb5b5b5,
-});
-groundMirror.position.y = 0.5;
-groundMirror.rotateX(-Math.PI / 2);
-groundMirror.material.envMapIntensity = 1;
-scene.add(groundMirror);
+// 	// optional: remove loader from DOM via event listener
+// 	loadingScreen.addEventListener('transitionend', onTransitionEnd);
+// });
 
 // Add 3D Model
 const modelLoader = new GLTFLoader();
@@ -70,6 +46,11 @@ modelLoader.load(
 	}
 );
 
+function onTransitionEnd(event) {
+	const element = event.target;
+	element.remove();
+}
+
 // load robot
 modelLoader.load(
 	'./models/baby_robot__3dcoat/scene.gltf',
@@ -84,6 +65,39 @@ modelLoader.load(
 		console.error('Error loading GLTF file', error);
 	}
 );
+
+// Font Loader
+const fontLoader = new FontLoader();
+fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
+	// Create a text geometry for the words
+	const textGeometry = new TextGeometry('Nathan Muto', {
+		font: font, // Specify the font for the text
+		size: 2, // Adjust the size of the text
+		height: 0.1, // Adjust the thickness of the text
+	});
+
+	// Create a material for the text
+	const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+	// Create a mesh using the geometry and material
+	const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+	// Position the text on the floor
+	textMesh.position.set(0, 1, 2); // Adjust the position as needed
+	// Add the text mesh to the scene
+	scene.add(textMesh);
+});
+
+// Create a reflective floor
+const geometry = new THREE.CircleGeometry(40, 64);
+const groundMirror = new Reflector(geometry, {
+	clipBias: 0.003,
+	textureWidth: window.innerWidth * window.devicePixelRatio,
+	textureHeight: window.innerHeight * window.devicePixelRatio,
+	color: 0xb5b5b5,
+});
+groundMirror.position.y = -0.1;
+groundMirror.rotateX(-Math.PI / 2);
+groundMirror.material.envMapIntensity = 1;
+scene.add(groundMirror);
 
 // Size
 const sizes = {
@@ -160,8 +174,8 @@ loop();
 // Timeline magic
 const tl = gsap.timeline({ defaults: { duration: 1 } });
 // tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 2, x: 2, y: 2 });
-tl.fromTo('nav', { y: '-100%' }, { y: '0%' });
-tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
+// tl.fromTo('nav', { y: '-100%' }, { y: '0%' });
+// tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
 
 // Mouse animation Color
 // let mouseDown = false;
