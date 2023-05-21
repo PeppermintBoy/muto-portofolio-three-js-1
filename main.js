@@ -9,10 +9,10 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import MeshReflectorMaterial from './MeshReflectorMaterial.js';
 
 // Loading page
-const loadingManager = new THREE.LoadingManager(() => {
-	const loadingScreen = document.getElementById('loading-screen');
-	loadingScreen.classList.add('fade-out');
-});
+// const loadingManager = new THREE.LoadingManager(() => {
+// 	const loadingScreen = document.getElementById('loading-screen');
+// 	loadingScreen.classList.add('fade-out');
+// });
 
 // Scene
 const scene = new THREE.Scene();
@@ -65,7 +65,7 @@ let robotModel;
 let yoyoMixer;
 
 // Add 3D Model
-const modelLoader = new GLTFLoader(loadingManager);
+const modelLoader = new GLTFLoader();
 // load aircraft
 modelLoader.load(
 	'./models/vintage_toy_airplane_2/scene.gltf',
