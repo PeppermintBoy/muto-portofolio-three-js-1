@@ -57,7 +57,7 @@ scene.add(groundMirror);
 const modelLoader = new GLTFLoader();
 // load aircraft
 modelLoader.load(
-	'../models/vintage_toy_airplane_2/scene.gltf',
+	'/../models/vintage_toy_airplane_2/scene.gltf',
 	gltf => {
 		gltf.scene.position.set(0, 0, 0);
 		gltf.scene.scale.set(0.02, 0.02, 0.02);
@@ -72,7 +72,7 @@ modelLoader.load(
 
 // load robot
 modelLoader.load(
-	'../models/baby_robot__3dcoat/scene.gltf',
+	'/../models/baby_robot__3dcoat/scene.gltf',
 	gltf => {
 		gltf.scene.position.set(-5, 0, 10);
 		gltf.scene.scale.set(0.05, 0.05, 0.05);
