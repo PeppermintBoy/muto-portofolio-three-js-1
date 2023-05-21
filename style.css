@@ -37,7 +37,7 @@ nav ul {
 	display: flex;
 	gap: 4rem;
 }
-
+/* 
 .title {
 	color: white;
 	z-index: 2;
@@ -46,8 +46,8 @@ nav ul {
 	left: 50%;
 	top: 85%;
 	transform: translate(-50%, -75%);
-}
-/* 
+} */
+
 #loading-screen {
 	position: absolute;
 	z-index: 2;
@@ -128,4 +128,4 @@ nav ul {
 		-ms-transform: rotate(360deg);
 		transform: rotate(360deg);
 	}
-} */
+}

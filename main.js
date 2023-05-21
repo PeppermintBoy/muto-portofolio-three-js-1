@@ -7,6 +7,13 @@ import { Reflector } from 'three/addons/objects/Reflector.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import MeshReflectorMaterial from './MeshReflectorMaterial.js';
+
+// Loading page
+const loadingManager = new THREE.LoadingManager(() => {
+	const loadingScreen = document.getElementById('loading-screen');
+	loadingScreen.classList.add('fade-out');
+});
+
 // Scene
 const scene = new THREE.Scene();
 
@@ -53,45 +60,16 @@ scene.add(directionalLight);
 // const mesh = new THREE.Mesh(geometry, material);
 // scene.add(mesh);
 
-// Loading page
-// const loadingManager = new THREE.LoadingManager(() => {
-// 	const loadingScreen = document.getElementById('loading-screen');
-// 	loadingScreen.classList.add('fade-out');
-
-// 	// optional: remove loader from DOM via event listener
-// 	loadingScreen.addEventListener('transitionend', onTransitionEnd);
-// });
-
-// function onTransitionEnd(event) {
-// 	const element = event.target;
-// 	element.remove();
-// }
-
 let aircraftModel;
 let robotModel;
 let yoyoMixer;
 
 // Add 3D Model
-const modelLoader = new GLTFLoader();
+const modelLoader = new GLTFLoader(loadingManager);
 // load aircraft
 modelLoader.load(
 	'./models/vintage_toy_airplane_2/scene.gltf',
 	gltf => {
-		// Apply MeshReflectorMaterial to meshes
-
-		// aircraftModel = gltf;
-		// gltf.scene.traverse(object => {
-		// 	if (object.isMesh) {
-		// 		const reflectorMaterial = new MeshReflectorMaterial(
-		// 			renderer,
-		// 			camera,
-		// 			scene,
-		// 			object
-		// 		);
-		// 		object.material = reflectorMaterial;
-		// 	}
-		// });
-
 		gltf.scene.position.set(0, 0, 0);
 		gltf.scene.scale.set(0.02, 0.02, 0.02);
 		gltf.scene.visible = true; // Set visibility to true
@@ -213,14 +191,6 @@ window.addEventListener('resize', () => {
 
 // AnimateLoop
 const animate = () => {
-	// if (aircraftModel) {
-	// 	// Call update() for each mesh with MeshReflectorMaterial applied in the first model
-	// 	aircraftModel.scene.traverse(object => {
-	// 		if (object.isMesh && object.material instanceof MeshReflectorMaterial) {
-	// 			object.material.update();
-	// 		}
-	// 	});
-	// }
 	// Object will move
 	// mesh.position.x += 0.2;
 	controls.update();
