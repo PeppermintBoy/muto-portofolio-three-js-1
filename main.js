@@ -6,9 +6,42 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-
+import MeshReflectorMaterial from './MeshReflectorMaterial.js';
 // Scene
 const scene = new THREE.Scene();
+
+// Size
+const sizes = {
+	width: window.innerWidth,
+	height: window.innerHeight,
+};
+
+// Camera
+const camera = new THREE.PerspectiveCamera(
+	45,
+	sizes.width / sizes.height,
+	0.1,
+	500
+);
+camera.position.x = 30;
+camera.position.y = 30;
+camera.position.z = 60;
+scene.add(camera);
+
+// PointLight
+const light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(10, 10, 10);
+light.intensity = 5;
+scene.add(light);
+
+// Add a global ambient light to brighten the entire scene
+// const ambientLight = new THREE.AmbientLight(0xffffff, 1); // White light with full intensity
+// scene.add(ambientLight);
+
+// DirectionalLight
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light with full intensity
+directionalLight.position.set(1, 1, 1); // Adjust the position as needed
+scene.add(directionalLight);
 
 // Create our sphere
 // const geometry = new THREE.SphereGeometry(3, 64, 64);
@@ -29,12 +62,36 @@ const scene = new THREE.Scene();
 // 	loadingScreen.addEventListener('transitionend', onTransitionEnd);
 // });
 
+// function onTransitionEnd(event) {
+// 	const element = event.target;
+// 	element.remove();
+// }
+
+let aircraftModel;
+let robotModel;
+let yoyoMixer;
+
 // Add 3D Model
 const modelLoader = new GLTFLoader();
 // load aircraft
 modelLoader.load(
 	'./models/vintage_toy_airplane_2/scene.gltf',
 	gltf => {
+		// Apply MeshReflectorMaterial to meshes
+
+		// aircraftModel = gltf;
+		// gltf.scene.traverse(object => {
+		// 	if (object.isMesh) {
+		// 		const reflectorMaterial = new MeshReflectorMaterial(
+		// 			renderer,
+		// 			camera,
+		// 			scene,
+		// 			object
+		// 		);
+		// 		object.material = reflectorMaterial;
+		// 	}
+		// });
+
 		gltf.scene.position.set(0, 0, 0);
 		gltf.scene.scale.set(0.02, 0.02, 0.02);
 		gltf.scene.visible = true; // Set visibility to true
@@ -46,15 +103,11 @@ modelLoader.load(
 	}
 );
 
-function onTransitionEnd(event) {
-	const element = event.target;
-	element.remove();
-}
-
 // load robot
 modelLoader.load(
 	'./models/baby_robot__3dcoat/scene.gltf',
 	gltf => {
+		// robotModel = gltf;
 		gltf.scene.position.set(-5, 0, 10);
 		gltf.scene.scale.set(0.05, 0.05, 0.05);
 		gltf.scene.visible = true; // Set visibility to true
@@ -66,13 +119,40 @@ modelLoader.load(
 	}
 );
 
+// Load Yoyo
+modelLoader.load(
+	'./avaturn/yoyo_laydown.glb',
+	glb => {
+		// robotModel = gltf;
+		glb.scene.position.set(5, 0, 5);
+		glb.scene.rotateY(0.5);
+		glb.scene.scale.set(10, 10, 10);
+		glb.scene.visible = true; // Set visibility to true
+		scene.add(glb.scene);
+
+		// Add yoyo's animation
+		const animations = glb.animations;
+		yoyoMixer = new THREE.AnimationMixer(glb.scene);
+		if (animations && animations.length > 0) {
+			for (let i = 0; i < animations.length; i++) {
+				const animation = animations[i];
+				yoyoMixer.clipAction(animation).play();
+			}
+		}
+	},
+	undefined,
+	function (error) {
+		console.error('Error loading YOYO GLB file', error);
+	}
+);
+
 // Font Loader
 const fontLoader = new FontLoader();
 fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
 	// Create a text geometry for the words
 	const textGeometry = new TextGeometry('Nathan Muto', {
 		font: font, // Specify the font for the text
-		size: 2, // Adjust the size of the text
+		size: 1.2, // Adjust the size of the text
 		height: 0.1, // Adjust the thickness of the text
 	});
 
@@ -81,7 +161,8 @@ fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
 	// Create a mesh using the geometry and material
 	const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 	// Position the text on the floor
-	textMesh.position.set(0, 1, 2); // Adjust the position as needed
+	textMesh.position.set(8, 0, 6); // Adjust the position as needed
+	// textMesh.rotateX(-Math.PI / 2);
 	// Add the text mesh to the scene
 	scene.add(textMesh);
 });
@@ -92,45 +173,12 @@ const groundMirror = new Reflector(geometry, {
 	clipBias: 0.003,
 	textureWidth: window.innerWidth * window.devicePixelRatio,
 	textureHeight: window.innerHeight * window.devicePixelRatio,
-	color: 0xb5b5b5,
+	color: 0x889999,
 });
 groundMirror.position.y = -0.1;
 groundMirror.rotateX(-Math.PI / 2);
 groundMirror.material.envMapIntensity = 1;
 scene.add(groundMirror);
-
-// Size
-const sizes = {
-	width: window.innerWidth,
-	height: window.innerHeight,
-};
-
-// PointLight
-const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(10, 10, 10);
-light.intensity = 5;
-scene.add(light);
-
-// Add a global ambient light to brighten the entire scene
-// const ambientLight = new THREE.AmbientLight(0xffffff, 1); // White light with full intensity
-// scene.add(ambientLight);
-
-// DirectionalLight
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light with full intensity
-directionalLight.position.set(1, 1, 1); // Adjust the position as needed
-scene.add(directionalLight);
-
-// Camera
-const camera = new THREE.PerspectiveCamera(
-	45,
-	sizes.width / sizes.height,
-	0.1,
-	500
-);
-camera.position.x = 10;
-camera.position.y = 20;
-camera.position.z = 70;
-scene.add(camera);
 
 //  Renderer (most important part. This is where all the magics come alive)
 const canvas = document.querySelector('.webgl');
@@ -163,13 +211,26 @@ window.addEventListener('resize', () => {
 	renderer.setSize(sizes.width, sizes.height);
 });
 
-const loop = () => {
+// AnimateLoop
+const animate = () => {
+	// if (aircraftModel) {
+	// 	// Call update() for each mesh with MeshReflectorMaterial applied in the first model
+	// 	aircraftModel.scene.traverse(object => {
+	// 		if (object.isMesh && object.material instanceof MeshReflectorMaterial) {
+	// 			object.material.update();
+	// 		}
+	// 	});
+	// }
+	// Object will move
 	// mesh.position.x += 0.2;
 	controls.update();
+	if (yoyoMixer) {
+		yoyoMixer.update(0.0167); // Time delta (approximately 60 FPS)
+	}
 	renderer.render(scene, camera);
-	window.requestAnimationFrame(loop);
+	window.requestAnimationFrame(animate);
 };
-loop();
+animate();
 
 // Timeline magic
 const tl = gsap.timeline({ defaults: { duration: 1 } });
