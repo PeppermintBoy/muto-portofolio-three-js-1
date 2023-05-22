@@ -6,18 +6,23 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import MeshReflectorMaterial from './MeshReflectorMaterial.js';
 
 // Loading page
-// const loadingManager = new THREE.LoadingManager(() => {
-// 	const loadingScreen = document.getElementById('loading-screen');
-// 	loadingScreen.classList.add('fade-out');
-// });
+const loadingManager = new THREE.LoadingManager(() => {
+	const loadingScreen = document.getElementById('loading-screen');
+	loadingScreen.classList.add('fade-out');
+	//Remove CSS class from loading screen so the screen of the models can be draggable
+	loadingScreen.addEventListener('transitionend', onLoadingScreenEnd);
+});
 
+function onLoadingScreenEnd(event) {
+	const element = event.target;
+	element.remove();
+}
 // Scene
 const scene = new THREE.Scene();
 
-// Size
+// Screen Size
 const sizes = {
 	width: window.innerWidth,
 	height: window.innerHeight,
@@ -65,7 +70,7 @@ let robotModel;
 let yoyoMixer;
 
 // Add 3D Model
-const modelLoader = new GLTFLoader();
+const modelLoader = new GLTFLoader(loadingManager);
 // load aircraft
 modelLoader.load(
 	'./models/vintage_toy_airplane_2/scene.gltf',
