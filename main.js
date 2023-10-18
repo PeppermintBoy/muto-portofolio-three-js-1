@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import './style.css';
 import gsap from 'gsap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -55,20 +56,6 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light
 directionalLight.position.set(1, 1, 1); // Adjust the position as needed
 scene.add(directionalLight);
 
-// Create our sphere
-// const geometry = new THREE.SphereGeometry(3, 64, 64);
-// const material = new THREE.MeshStandardMaterial({
-// 	color: 'grey',
-// 	// more shinier
-// 	roughness: 0.2,
-// });
-// const mesh = new THREE.Mesh(geometry, material);
-// scene.add(mesh);
-
-let aircraftModel;
-let robotModel;
-let yoyoMixer;
-
 // Add 3D Model
 const modelLoader = new GLTFLoader(loadingManager);
 // load aircraft
@@ -101,6 +88,8 @@ modelLoader.load(
 		console.error('Error loading GLTF file', error);
 	}
 );
+
+let yoyoMixer;
 
 // Load Yoyo
 modelLoader.load(
@@ -165,7 +154,7 @@ scene.add(groundMirror);
 
 //  Renderer (most important part. This is where all the magics come alive)
 const canvas = document.querySelector('.webgl');
-const renderer = new THREE.WebGL1Renderer({ canvas });
+const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(sizes.width, sizes.height);
 // pixels will be higher. Edge of the oject will seem more smoother
 renderer.setPixelRatio(2);
@@ -194,6 +183,15 @@ window.addEventListener('resize', () => {
 	renderer.setSize(sizes.width, sizes.height);
 });
 
+// WebXR settings
+renderer.xr.enabled = true;
+// if (THREE.XRController.isAvailable()) {
+// 	console.log('webXR activated');
+// 	document.body.appendChild(xrRenderer.createButton(renderer));
+// }
+
+document.body.appendChild(VRButton.createButton(renderer));
+
 // AnimateLoop
 const animate = () => {
 	// Object will move
@@ -203,12 +201,12 @@ const animate = () => {
 		yoyoMixer.update(0.0167); // Time delta (approximately 60 FPS)
 	}
 	renderer.render(scene, camera);
-	window.requestAnimationFrame(animate);
+	renderer.setAnimationLoop(animate);
 };
 animate();
 
 // Timeline magic
-const tl = gsap.timeline({ defaults: { duration: 1 } });
+// const tl = gsap.timeline({ defaults: { duration: 1 } });
 // tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 2, x: 2, y: 2 });
 // tl.fromTo('nav', { y: '-100%' }, { y: '0%' });
 // tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
