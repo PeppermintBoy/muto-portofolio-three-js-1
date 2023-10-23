@@ -23,6 +23,12 @@ function onLoadingScreenEnd(event) {
 // Scene
 const scene = new THREE.Scene();
 
+// For development. Adds visual grid and axis indicators
+const gridHelper = new THREE.GridHelper(200, 50);
+scene.add(gridHelper);
+const axesHelper = new THREE.AxesHelper(100);
+scene.add(axesHelper);
+
 // Screen Size
 const sizes = {
 	width: window.innerWidth,
@@ -36,9 +42,8 @@ const camera = new THREE.PerspectiveCamera(
 	0.1,
 	500
 );
-camera.position.x = 30;
-camera.position.y = 30;
-camera.position.z = 60;
+// Set the initial positions
+camera.position.set(30, 30, 60);
 scene.add(camera);
 
 // PointLight
@@ -89,9 +94,8 @@ modelLoader.load(
 	}
 );
 
-let yoyoMixer;
-
 // Load Yoyo
+let yoyoMixer;
 modelLoader.load(
 	'./avaturn/yoyo_laydown.glb',
 	glb => {
@@ -169,8 +173,6 @@ controls.enablePan = false;
 controls.enableZoom = true;
 controls.minDistance = 10;
 controls.maxDistance = 100;
-// controls.autoRotate = true;
-// controls.autoRotateSpeed = 5;
 
 // Resize
 window.addEventListener('resize', () => {
@@ -185,12 +187,23 @@ window.addEventListener('resize', () => {
 
 // WebXR settings
 renderer.xr.enabled = true;
-// if (THREE.XRController.isAvailable()) {
-// 	console.log('webXR activated');
-// 	document.body.appendChild(xrRenderer.createButton(renderer));
-// }
+const cameraGroup = new THREE.Group();
+// Set the initial VR Headset Position.
+cameraGroup.position.set(5, 5, 25);
+//When user turn on the VR mode.
+const onVRSessionStart = () => {
+	scene.add(cameraGroup);
+	cameraGroup.add(camera);
+};
+//When user turn off the VR mode.
+const onVRSessionEnd = () => {
+	scene.remove(cameraGroup);
+	cameraGroup.remove(camera);
+};
+renderer.xr.addEventListener('sessionstart', onVRSessionStart);
+renderer.xr.addEventListener('sessionend', onVRSessionEnd);
 
-document.body.appendChild(VRButton.createButton(renderer));
+document.body.appendChild(VRButton.createButton(renderer)); //Create "ENTER VR" button
 
 // AnimateLoop
 const animate = () => {
@@ -204,33 +217,3 @@ const animate = () => {
 	renderer.setAnimationLoop(animate);
 };
 animate();
-
-// Timeline magic
-// const tl = gsap.timeline({ defaults: { duration: 1 } });
-// tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 2, x: 2, y: 2 });
-// tl.fromTo('nav', { y: '-100%' }, { y: '0%' });
-// tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
-
-// Mouse animation Color
-// let mouseDown = false;
-// let rgb = [];
-// window.addEventListener('mousedown', () => (mouseDown = true));
-// window.addEventListener('mouseup', () => (mouseDown = false));
-
-// window.addEventListener('mousemove', e => {
-// 	if (mouseDown) {
-// 		rgb = [
-// 			Math.round((e.pageX / sizes.width) * 255),
-// 			Math.round((e.pageY / sizes.height) * 255),
-// 			150,
-// 		];
-// 		// Lets animate
-// 		// Needs to call Three.color in order to change THREE object color.
-// 		let newColor = new THREE.Color(`rgb(${rgb.join(',')})`);
-// 		gsap.to(mesh.material.color, {
-// 			r: newColor.r,
-// 			g: newColor.g,
-// 			b: newColor.b,
-// 		});
-// 	}
-// });
