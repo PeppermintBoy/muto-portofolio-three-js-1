@@ -24,10 +24,10 @@ function onLoadingScreenEnd(event) {
 const scene = new THREE.Scene();
 
 // For development. Adds visual grid and axis indicators
-const gridHelper = new THREE.GridHelper(200, 50);
-scene.add(gridHelper);
-const axesHelper = new THREE.AxesHelper(100);
-scene.add(axesHelper);
+// const gridHelper = new THREE.GridHelper(200, 50);
+// scene.add(gridHelper);
+// const axesHelper = new THREE.AxesHelper(100);
+// scene.add(axesHelper);
 
 // Screen Size
 const sizes = {
