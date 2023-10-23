@@ -30,22 +30,21 @@ function init() {
 	initFloor(scene);
 	initWebXR(renderer, scene, camera);
 	watchScreenResize(camera, renderer);
-	animate(renderer, scene, camera, controls);
 	// showGridHelper(scene); //For development only
+
+	animate(renderer, scene, camera, controls);
 }
 
 function initLoadingManager() {
-	const loadingManager = new THREE.LoadingManager(() => {
-		const loadingScreen = document.getElementById('loading-screen');
-		loadingScreen.classList.add('fade-out');
-		//Remove CSS class from loading screen so the screen of the models can be draggable
-		loadingScreen.addEventListener('transitionend', onLoadingScreenEnd);
+	const _loadingManager = new THREE.LoadingManager(() => {
+		const _loadingScreen = document.getElementById('loading-screen');
+		_loadingScreen.classList.add('fade-out');
+		_loadingScreen.addEventListener('transitionend', event => {
+			//Remove CSS class from loading screen so the screen of the models can be draggable
+			event.target.remove();
+		});
 	});
-	function onLoadingScreenEnd(event) {
-		event.target.remove();
-	}
-
-	return loadingManager;
+	return _loadingManager;
 }
 
 function initScene() {
@@ -53,36 +52,36 @@ function initScene() {
 }
 
 function initCamera() {
-	const camera = new THREE.PerspectiveCamera(
+	const _camera = new THREE.PerspectiveCamera(
 		45,
 		screenSize.width / screenSize.height,
 		0.1,
 		500
 	);
-	camera.position.set(30, 30, 60); // Set the initial positions
-	return camera;
+	_camera.position.set(30, 30, 60); // Set the initial positions
+	return _camera;
 }
 
 function initLights(scene) {
 	// PointLight
-	const light = new THREE.PointLight(0xffffff, 1, 100);
-	light.position.set(10, 10, 10);
-	scene.add(light);
+	const _light = new THREE.PointLight(0xffffff, 1, 100);
+	_light.position.set(10, 10, 10);
+	scene.add(_light);
 	// DirectionalLight
-	const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-	directionalLight.position.set(1, 1, 1);
-	scene.add(directionalLight);
+	const _directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+	_directionalLight.position.set(1, 1, 1);
+	scene.add(_directionalLight);
 }
 
 function initModels(scene, loadingManager) {
-	const modelLoader = new GLTFLoader(loadingManager);
+	const _modelLoader = new GLTFLoader(loadingManager);
 	// load aircraft
-	modelLoader.load(
+	_modelLoader.load(
 		'./models/vintage_toy_airplane_2/scene.gltf',
 		gltf => {
 			gltf.scene.position.set(0, 0, 0);
 			gltf.scene.scale.set(0.02, 0.02, 0.02);
-			gltf.scene.visible = true; // Set visibility to true
+			gltf.scene.visible = true;
 			scene.add(gltf.scene);
 		},
 		undefined,
@@ -92,13 +91,12 @@ function initModels(scene, loadingManager) {
 	);
 
 	// load robot
-	modelLoader.load(
+	_modelLoader.load(
 		'./models/baby_robot__3dcoat/scene.gltf',
 		gltf => {
-			// robotModel = gltf;
 			gltf.scene.position.set(-5, 0, 10);
 			gltf.scene.scale.set(0.05, 0.05, 0.05);
-			gltf.scene.visible = true; // Set visibility to true
+			gltf.scene.visible = true;
 			scene.add(gltf.scene);
 		},
 		undefined,
@@ -108,14 +106,13 @@ function initModels(scene, loadingManager) {
 	);
 
 	// Load Yoyo
-	modelLoader.load(
-		'./avaturn/yoyo_laydown.glb',
+	_modelLoader.load(
+		'./models//avaturn/yoyo_laydown.glb',
 		glb => {
-			// robotModel = gltf;
 			glb.scene.position.set(5, 0, 5);
 			glb.scene.rotateY(0.5);
 			glb.scene.scale.set(10, 10, 10);
-			glb.scene.visible = true; // Set visibility to true
+			glb.scene.visible = true;
 			scene.add(glb.scene);
 
 			// Add yoyo's animation
@@ -136,59 +133,53 @@ function initModels(scene, loadingManager) {
 }
 
 function initText(scene) {
-	const fontLoader = new FontLoader();
-	fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
-		// Create a text geometry for the words
-		const textGeometry = new TextGeometry('Nathan Muto', {
+	const _fontLoader = new FontLoader();
+	_fontLoader.load('../fonts/Oswald_Medium_Regular.json', font => {
+		const _textGeometry = new TextGeometry('Nathan Muto', {
 			font: font, // Specify the font for the text
 			size: 1.2, // Adjust the size of the text
 			height: 0.1, // Adjust the thickness of the text
 		});
 
-		// Create a material for the text
-		const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-		// Create a mesh using the geometry and material
-		const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-		// Position the text on the floor
-		textMesh.position.set(8, 0, 6); // Adjust the position as needed
-		// textMesh.rotateX(-Math.PI / 2);
-		// Add the text mesh to the scene
-		scene.add(textMesh);
+		const _textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		const _textMesh = new THREE.Mesh(_textGeometry, _textMaterial);
+		_textMesh.position.set(8, 0, 6); // Position the text on the floor
+		scene.add(_textMesh);
 	});
 }
 
 function initFloor(scene) {
 	// Create a reflective floor
-	const geometry = new THREE.CircleGeometry(40, 64);
-	const groundMirror = new Reflector(geometry, {
+	const _geometry = new THREE.CircleGeometry(40, 64);
+	const _groundMirror = new Reflector(_geometry, {
 		clipBias: 0.003,
 		textureWidth: window.innerWidth * window.devicePixelRatio,
 		textureHeight: window.innerHeight * window.devicePixelRatio,
 		color: 0x889999,
 	});
-	groundMirror.position.y = -0.1;
-	groundMirror.rotateX(-Math.PI / 2);
-	groundMirror.material.envMapIntensity = 1;
-	scene.add(groundMirror);
+	_groundMirror.position.y = -0.1;
+	_groundMirror.rotateX(-Math.PI / 2);
+	_groundMirror.material.envMapIntensity = 1;
+	scene.add(_groundMirror);
 }
 
 function initRenderer(canvas) {
-	const renderer = new THREE.WebGLRenderer({ canvas });
-	renderer.setSize(screenSize.width, screenSize.height);
-	renderer.setPixelRatio(2); // pixels will be higher. Edge of the oject will seem more smoother
-	renderer.xr.enabled = true;
-	return renderer;
+	const _renderer = new THREE.WebGLRenderer({ canvas });
+	_renderer.setSize(screenSize.width, screenSize.height);
+	_renderer.setPixelRatio(2); // pixels will be higher. Edge of the oject will seem more smoother
+	_renderer.xr.enabled = true;
+	return _renderer;
 }
 
 function initControls(camera, canvas) {
-	const controls = new OrbitControls(camera, canvas);
-	controls.maxPolarAngle = Math.PI / 2.5; // prevent from going below the ground
-	controls.enableDamping = true;
-	controls.enablePan = false;
-	controls.enableZoom = true;
-	controls.minDistance = 10;
-	controls.maxDistance = 100;
-	return controls;
+	const _controls = new OrbitControls(camera, canvas);
+	_controls.maxPolarAngle = Math.PI / 2.5; // prevent from going below the ground
+	_controls.enableDamping = true;
+	_controls.enablePan = false;
+	_controls.enableZoom = true;
+	_controls.minDistance = 10;
+	_controls.maxDistance = 100;
+	return _controls;
 }
 
 function watchScreenResize(camera, renderer) {
@@ -204,38 +195,41 @@ function watchScreenResize(camera, renderer) {
 }
 
 function initWebXR(renderer, scene, camera) {
-	const cameraGroup = new THREE.Group();
-	cameraGroup.position.set(5, 5, 25); //Set the initial VR Headset Position.
+	const _cameraGroup = new THREE.Group();
+	_cameraGroup.position.set(5, 5, 25); //Set the initial VR Headset Position.
+
+	// Create the "Enter VR" button
+	const _enterVRButton = VRButton.createButton(renderer);
+	document.body.appendChild(_enterVRButton);
+
 	//When the user turns on VR mode.
 	renderer.xr.addEventListener('sessionstart', () => {
-		scene.add(cameraGroup);
-		cameraGroup.add(camera);
+		scene.add(_cameraGroup);
+		_cameraGroup.add(camera);
 	});
 	//When the user turns off VR mode.
 	renderer.xr.addEventListener('sessionend', () => {
-		scene.remove(cameraGroup);
-		cameraGroup.remove(camera);
+		scene.remove(_cameraGroup);
+		_cameraGroup.remove(camera);
 	});
-
-	document.body.appendChild(VRButton.createButton(renderer));
 }
 
 function animate(renderer, scene, camera, controls) {
-	const loop = () => {
+	const _loop = () => {
 		controls.update();
 		if (yoyoMixer) {
 			yoyoMixer.update(0.0167); /// Time delta (approximately 60 FPS)
 		}
 		renderer.render(scene, camera);
-		renderer.setAnimationLoop(loop);
+		renderer.setAnimationLoop(_loop);
 	};
-	loop();
+	_loop();
 }
 
 function showGridHelper(scene) {
 	// For development. Adds visual grid and axis indicators
-	const gridHelper = new THREE.GridHelper(200, 50);
-	scene.add(gridHelper);
+	const _gridHelper = new THREE.GridHelper(200, 50);
+	scene.add(_gridHelper);
 	const axesHelper = new THREE.AxesHelper(100);
 	scene.add(axesHelper);
 }
