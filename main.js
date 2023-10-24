@@ -18,12 +18,12 @@ const screenSize = {
 init();
 
 function init() {
-	const loadingManager = initLoadingManager();
 	const canvas = document.querySelector('.webgl');
 	const scene = initScene();
 	const camera = initCamera();
 	const renderer = initRenderer(canvas);
 	const controls = initControls(camera, canvas);
+	const loadingManager = initLoadingManager(renderer);
 	initLights(scene);
 	initModels(scene, loadingManager);
 	initText(scene);
@@ -35,7 +35,7 @@ function init() {
 	animate(renderer, scene, camera, controls);
 }
 
-function initLoadingManager() {
+function initLoadingManager(renderer) {
 	const _loadingManager = new THREE.LoadingManager(() => {
 		const _loadingScreen = document.getElementById('loading-screen');
 		_loadingScreen.classList.add('fade-out');
@@ -43,6 +43,10 @@ function initLoadingManager() {
 			//Remove CSS class from loading screen so the screen of the models can be draggable
 			event.target.remove();
 		});
+
+		// Create the "Enter VR" button
+		const _enterVRButton = VRButton.createButton(renderer);
+		document.body.appendChild(_enterVRButton);
 	});
 	return _loadingManager;
 }
@@ -197,10 +201,6 @@ function watchScreenResize(camera, renderer) {
 function initWebXR(renderer, scene, camera) {
 	const _cameraGroup = new THREE.Group();
 	_cameraGroup.position.set(5, 5, 25); //Set the initial VR Headset Position.
-
-	// Create the "Enter VR" button
-	const _enterVRButton = VRButton.createButton(renderer);
-	document.body.appendChild(_enterVRButton);
 
 	//When the user turns on VR mode.
 	renderer.xr.addEventListener('sessionstart', () => {
